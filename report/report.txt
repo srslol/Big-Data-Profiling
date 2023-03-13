@@ -1,0 +1,97 @@
+------------------------------------------------------------------------------
+Result Type               Result Value              Accuracy/Count  
+------------------------------------------------------------------------------
+CPC                       2,035,981.307             2.036           
+HLL                       3,073,971.841             3.074           
+Theta 1                   3,049,150.029             3.049           
+Theta 2                   2,994,140.196             2.994           
+Tuple                     1,032,638.028             1.033           
+Quan Min                  Result: -4.553            -               
+Quan Med                  Result: 0.5036            -               
+Quan Max                  Result: 5.498             -               
+Prob 0                    Result: 0.01255           -               
+Prob 1                    Result: 0.3166            -               
+Prob 2                    Result: 0.5807            -               
+Prob 3                    Result: 0.09017           -               
+Freq 0                    Result: 25097             -               
+Freq 1                    Result: 6.3319e+05        -               
+Freq 2                    Result: 1.1614e+06        -               
+Freq 3                    Result: 1.8033e+05        -               
+Sample-0                  Result: 420,834           -               
+Sample-1                  Result: 196,785           -               
+Sample-2                  Result: 107,498           -               
+Sample-3                  Result: 546,006           -               
+Sample-4                  Result: 415,786           -               
+Sample-5                  Result: 376,077           -               
+Sample-6                  Result: 54,549            -               
+Sample-7                  Result: 943,882           -               
+Sample-8                  Result: 547,960           -               
+Sample-9                  Result: 153,769           -               
+RandSample-0              Result: 237,532           -               
+RandSample-1              Result: 523,723           -               
+RandSample-2              Result: 435,337           -               
+RandSample-3              Result: 452,833           -               
+RandSample-4              Result: 642,149           -               
+RandSample-5              Result: 754,653           -               
+RandSample-6              Result: 706,693           -               
+RandSample-7              Result: 709,492           -               
+RandSample-8              Result: 906,949           -               
+RandSample-9              Result: 684,734           -               
+Most Freq                 Value: 103637             Result: 0.0.0.0 
+Most Freq                 Value: 103610             Result: 1.1.1.0 
+Most Freq                 Value: 103575             Result: 1.1.0.0 
+Most Freq                 Value: 103570             Result: 1.0.0.0 
+Most Freq                 Value: 103364             Result: 1.1.0.1 
+Most Freq                 Value: 103344             Result: 1.0.1.0 
+Most Freq                 Value: 103338             Result: 0.1.0.0 
+Most Freq                 Value: 103335             Result: 0.0.1.0 
+Most Freq                 Value: 103317             Result: 0.1.0.1 
+Most Freq                 Value: 103278             Result: 1.0.1.1 
+Most Freq                 Value: 103250             Result: 1.0.0.1 
+Most Freq                 Value: 103238             Result: 1.1.1.1 
+Most Freq                 Value: 103237             Result: 0.1.1.0 
+Most Freq                 Value: 103225             Result: 0.0.0.1 
+Most Freq                 Value: 103036             Result: 0.1.1.1 
+Most Freq                 Value: 102701             Result: 0.0.1.1 
+------------------------------------------------------------------------------
+Variables:       Settings:  
+------------------------------------------------------------------------------
+Integers: 	 true
+Strings : 	 true
+IPs     : 	 true
+Amount  : 	 1,000,000
+lgk CPC : 	 11
+lgk HLL : 	 11
+------------------------------------------------------------------------------
+File Names:              Bytes:
+------------------------------------------------------------------------------
+DC - CPC-Integers.bin    1,280
+DC - CPC-Strings.bin     1,284
+DC - HLL-IPs.bin         1,072
+DC - HLL-Integers.bin    1,068
+DC - HLL-Strings.bin     1,064
+DC - Theta-IPs.bin       52,064
+DC - Theta-Integers.bin  52,656
+DC - Theta-Strings.bin   48,320
+DC - Tuple-Integers1.bin 103,720
+Frequency-Strings1.bin   168
+Frequency-Strings2.bin   168
+Frequency-Strings3.bin   336
+Quantiles1.bin           14,368
+Quantiles2.bin           14,368
+Reservoir1.bin           65,552
+Reservoir2.bin           65,552
+------------------------------------------------------------------------------
+Sketch:                   Time:                               
+------------------------------------------------------------------------------
+Frequency                 Value                               
+CPC                       6.241 ms                            
+HLL                       4.367 ms                            
+Theta                     5.538 ms                            
+Tuple                     8.698 ms                            
+Quantile                  4.544 ms                            
+Frequency                 1.609 ms                            
+Sampling                  3.083 ms                            
+------------------------------------------------------------------------------
+Total Time: 549.2 ms
+------------------------------------------------------------------------------

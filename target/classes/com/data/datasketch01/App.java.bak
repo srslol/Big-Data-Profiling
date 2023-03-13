@@ -1,0 +1,389 @@
+// Version 0.3.2
+// Scott Myers
+// Wallaroo.ai 
+// Using DataSketches to get distinct counts of specific datatypes 
+// Quarter 4, 2021
+// Updated Nov 30:  Changed IP range from random to serial.  Created third sketch for three hashmaps.
+// Updated Dec 4:   Added HyperLogLog analysis using same data for direct comparison 
+// Updated Dec 5:   Added Theta
+// Updated Dec 6:   Attempting Tuple Sketch - Running into dependency problems 
+// Updated Dec 7:   Added filesize
+
+package com.data.datasketch01;
+
+// Common Imports
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import me.tongfei.progressbar.*;
+import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+
+
+// import com.yahoo.memory.Memory;
+import org.apache.commons.validator.routines.InetAddressValidator;
+
+// Cpc Imports
+import org.apache.datasketches.cpc.CpcSketch;
+import org.apache.datasketches.cpc.CpcUnion; 
+import org.apache.datasketches.hll.HllSketch;
+import org.apache.datasketches.hll.TgtHllType; 
+
+// Theta Sketch Import
+import org.apache.datasketches.memory.Memory;
+import org.apache.datasketches.theta.Sketch;
+import org.apache.datasketches.theta.Sketches;
+import org.apache.datasketches.theta.UpdateSketch;
+import org.apache.datasketches.theta.Intersection;
+import org.apache.datasketches.theta.SetOperation;
+
+public class App
+{   //  Tried to make it easy to choose what kind of data to use.  Just select true or false for the types.  Can have multiple trues, but not all false.
+    public static boolean numbers = true;
+    public static boolean strings = true;
+    public static boolean ips = true;
+    public static int amount = 10_000_000; 
+    public static int ClgK = 11;    // Select the amount of times to create data.  If multiple trues above will increase a full 'amount'
+    public static int HlgK = 11;
+    
+    public static long getFileSize(String filename) {
+        File f = new File(filename);
+        long fileSize = FileUtils.sizeOf(f);        
+        System.out.format("The size of the file in bytes (" +filename+ "): ");
+        return fileSize;
+        }
+    
+    public static String createRandomWord(int len) {  // Convert to serial integer
+        String name = "";
+        for (int i = 0; i < len; i++) {
+            int v = 1 + (int) (Math.random() * 26);
+            char c = (char) (v + (i == 0 ? 'A' : 'a') - 1);
+            name += c;
+        }   return name;   }
+
+    public static boolean validateIP(String inet4address) {
+        InetAddressValidator validateMe = InetAddressValidator.getInstance();
+        if (validateMe.isValidInet4Address(inet4address)) {
+              // System.out.print("The IP address " + inet4address + " is valid\n");     
+              return true;}
+        else {System.out.print("The IP address " + inet4address + " is NOT valid\n"); 
+        return false;}
+    } 
+
+    static String seqString(int i) {
+        return i < 0 ? "" : seqString((i / 26) - 1) + (char)(65 + i % 26);
+    }
+    // ///////////////////////////////////////////////////////////////////
+    public static void main(String[] args) throws Exception {
+        long startTime = System.nanoTime();   //  Create a start time for showing total time processing 
+        //ProgressBar pb = new ProgressBar("Processing", amount);  // Progress bar - this is handy for larger amounts over 1,000,000
+        Integer counter = 0;
+        //pb.start();  // Start progress bar
+
+        HashMap<String, String> ip_map = new HashMap<String, String>();
+        HashMap<Integer, Integer> integer_map = new HashMap<Integer, Integer>();
+        HashMap<Integer, String> hash_map = new HashMap<Integer, String>();
+        
+        System.out.println("\n\n------------------------------------------------------------------------------------------------");
+                
+
+        
+        System.out.println("--------> Creating Data Points. ");
+
+        if (numbers == true) {
+            for (int i = 0; i < amount; i++) {
+                integer_map.put(i,i);
+/*                  // increment pb
+                if (numbers==true) { 
+                    integer_map.put(i,i); 
+                } */
+            }
+        }
+
+        if (strings == true) { 
+            for (int ii = 0; ii < amount; ++ii) {
+                hash_map.put(amount+ii,seqString(ii)); 
+                // pb.step();
+            }
+        }
+        
+        if (ips==true) {  
+            String completeIP = "";
+            parentloop:
+                aloop: for (int a=1;a<254;a++) {if (counter == amount) {break parentloop;}
+                        if (counter == amount) break aloop;
+                    bloop: for (int b=0;b<254;b++) {if (counter == amount) break bloop;
+                        cloop: for (int c=0;c<254;c++) {if (counter == amount) break cloop;
+                            dloop: for (int d=1;d<254;d++) {if (counter >= amount) break dloop;
+                                counter++;
+                                completeIP = (a + "." + b + "." + c + "." + d);
+                                // System.out.println(completeIP);
+                                if (validateIP(completeIP)) {  //is VALID so carry on
+                                    ip_map.put(createRandomWord(8), completeIP);}
+                                else 
+                                    {System.out.println("Invalid IP was created.  Please start over."); System.exit(0);}
+                                if (counter >= amount) break;
+                                }}}}
+        }
+         
+        // ///////////////////////////////////////////////////////////////////
+        System.out.println("--------> Data Points have been created. ");
+ 
+        
+        // this section generates two sketches with some overlap and serializes them into files
+        {   // ///////////////////////////////////////////////////////////////////
+            
+            
+            CpcSketch sketch1 = new CpcSketch(ClgK);
+            for (Map.Entry mapElement : hash_map.entrySet()) {
+                String value = ((String)mapElement.getValue());  // QUESTION:  Should IP be captured as string here?
+                sketch1.update(value);
+                
+                }
+            FileOutputStream out1 = new FileOutputStream("cpc-Strings.bin");   // TODO:  Change name to reflect type of data
+            out1.write(sketch1.toByteArray());
+            out1.close();
+            
+            CpcSketch sketch2 = new CpcSketch(ClgK);
+            for (Map.Entry mapElementintegers : integer_map.entrySet()) {
+                Integer value = (Integer)mapElementintegers.getValue();
+                sketch2.update(value);  
+                
+                }
+            FileOutputStream out2 = new FileOutputStream("cpc-Strings.bin");
+            out2.write(sketch2.toByteArray());
+            out2.close();
+            
+            CpcSketch sketch3 = new CpcSketch(ClgK);
+            for (Map.Entry mapElementIP : ip_map.entrySet()) {
+                String value = (String)mapElementIP.getValue();
+                sketch3.update(value);  
+                
+                }
+            FileOutputStream out3 = new FileOutputStream("cpc-IPs.bin");
+            out3.write(sketch3.toByteArray());
+            out3.close();
+        
+        }
+        //  -----------------------------   Write Values to Disk
+        // System.out.println("--------> CPC Sketch Data has been written. ");      
+        {
+            
+            HllSketch sketch4 = new HllSketch(HlgK);
+            for (Map.Entry mapElementintegers : hash_map.entrySet()) {
+                String value = (String)mapElementintegers.getValue();
+                sketch4.update(value);  
+                
+                }
+            FileOutputStream out4 = new FileOutputStream("Hll-Strings.bin");
+            out4.write(sketch4.toCompactByteArray());
+            out4.close();
+      
+            HllSketch sketch5 = new HllSketch(HlgK);
+            for (Map.Entry mapElementintegers : integer_map.entrySet()) {
+                Integer value = (Integer)mapElementintegers.getValue();
+                sketch5.update(value);  
+                
+                }
+            // for (int key = 0; key < 100000; key++) sketch1.update(key);
+            FileOutputStream out5 = new FileOutputStream("Hll-Integers.bin");
+            out5.write(sketch5.toCompactByteArray());
+            out5.close();
+
+            HllSketch sketch6 = new HllSketch(HlgK);
+            for (Map.Entry mapElementintegers : ip_map.entrySet()) {
+                String value = (String)mapElementintegers.getValue();
+                sketch6.update(value);  
+                
+                }
+            FileOutputStream out6 = new FileOutputStream("Hll-IPs.bin");
+            out6.write(sketch6.toCompactByteArray());
+            out6.close();
+        }
+        // System.out.println("--------> HLL Sketch Data has been written. ");
+ 
+        {
+            UpdateSketch sketch7 = UpdateSketch.builder().build();
+            for (Map.Entry mapElementintegers : hash_map.entrySet()) {
+                String value = (String)mapElementintegers.getValue();
+                sketch7.update(value);  
+                
+                }
+            
+            FileOutputStream out7 = new FileOutputStream("Theta-Strings.bin");
+            out7.write(sketch7.compact().toByteArray());
+            out7.close();
+
+            UpdateSketch sketch8 = UpdateSketch.builder().build();
+            for (Map.Entry mapElementintegers : integer_map.entrySet()) {
+                Integer value = (Integer)mapElementintegers.getValue();
+                sketch8.update(value);  
+                
+                }
+            // for (int key = 0; key < 100000; key++) sketch7.update(key);
+            FileOutputStream out8 = new FileOutputStream("Theta-Integers.bin");
+            out8.write(sketch8.compact().toByteArray());
+            out8.close();
+
+            UpdateSketch sketch9 = UpdateSketch.builder().build();
+            for (Map.Entry mapElementintegers : ip_map.entrySet()) {
+                String value = (String)mapElementintegers.getValue();
+                sketch9.update(value);  
+                
+                }
+            // for (int key = 0; key < 100000; key++) sketch7.update(key);
+            FileOutputStream out9 = new FileOutputStream("Theta-IPs.bin");
+            out9.write(sketch9.compact().toByteArray());
+            out9.close();
+        }
+        //  -----------------------------   Read - CPC
+        // System.out.println("--------> Theta Sketch Data has been written. ");
+        
+
+        {
+              // increment 
+            FileInputStream in1 = new FileInputStream("cpc-Strings.bin");
+            byte[] bytes1 = new byte[in1.available()];
+            in1.read(bytes1);
+            in1.close();
+            CpcSketch sketch1 = CpcSketch.heapify(Memory.wrap(bytes1));
+            // ///////////////////////////////////////////////////////////////////
+            
+            FileInputStream in2 = new FileInputStream("cpc-Integers.bin");
+            byte[] bytes2 = new byte[in2.available()];
+            in2.read(bytes2);
+            in2.close();
+            CpcSketch sketch2 = CpcSketch.heapify(Memory.wrap(bytes2));
+            // ///////////////////////////////////////////////////////////////////
+            
+            FileInputStream in3 = new FileInputStream("cpc-IPs.bin");
+            byte[] bytes3 = new byte[in3.available()];
+            in3.read(bytes3);
+            in3.close();
+            CpcSketch sketch3 = CpcSketch.heapify(Memory.wrap(bytes3));
+            System.out.println("--------> CPC Sketch Data has been read. ");
+            // ///////////////////////////////////////////////////////////////////
+            CpcUnion union = new CpcUnion(ClgK);
+            union.update(sketch1);
+            union.update(sketch2);
+            union.update(sketch3);
+            CpcSketch cpc_result = union.getResult();
+            
+            // ///////////////////////////////////////////////////////////////////
+            // System.out.println(result.toString());
+            System.out.println("oooooooo> CPC - Distinct count estimate: " + cpc_result.getEstimate());
+            // System.out.println("CPC - Distinct count lower bound 95% confidence: " + result.getLowerBound(2));
+            // System.out.println("CPC - Distinct count upper bound 95% confidence: " + result.getUpperBound(2) + "\n");
+            
+        }
+        //  -----------------------------   Read - HLL
+        {
+            FileInputStream in1 = new FileInputStream("Hll-Strings.bin");
+            byte[] bytes1 = new byte[in1.available()];
+            in1.read(bytes1);
+            in1.close();
+            HllSketch sketch1 = HllSketch.heapify(Memory.wrap(bytes1));
+            
+            
+        
+            FileInputStream in2 = new FileInputStream("Hll-Integers.bin");
+            byte[] bytes2 = new byte[in2.available()];
+            in2.read(bytes2);
+            in2.close();
+            HllSketch sketch2 = HllSketch.heapify(Memory.wrap(bytes2));
+            
+
+            FileInputStream in3 = new FileInputStream("Hll-IPs.bin");
+            byte[] bytes3 = new byte[in3.available()];
+            in3.read(bytes3);
+            in3.close();
+            HllSketch sketch3 = HllSketch.heapify(Memory.wrap(bytes3));
+            
+            //pb.setExtraMessage("Reading Sketch 3 from Disk");
+            // System.out.println("--------> HLL Sketch Data has been read. ");
+
+            org.apache.datasketches.hll.Union hll_union = new org.apache.datasketches.hll.Union(HlgK);
+            hll_union.update(sketch1);
+            
+            hll_union.update(sketch2);
+            hll_union.update(sketch3);
+            HllSketch unionResult = hll_union.getResult(TgtHllType.HLL_4);
+    
+        
+            System.out.println("oooooooo> HLL - Union unique count estimate: " + unionResult.getEstimate());
+            // System.out.println("HLL - Union unique count lower bound 95% confidence: " + unionResult.getLowerBound(2));
+            // System.out.println("HLL - Union unique count upper bound 95% confidence: " + unionResult.getUpperBound(2));
+        }
+        
+        {
+            FileInputStream in1 = new FileInputStream("Theta-Strings.bin");
+            byte[] bytes1 = new byte[in1.available()];
+            in1.read(bytes1);
+            in1.close(); 
+            Sketch sketch1 = Sketches.wrapSketch(Memory.wrap(bytes1));
+            
+
+            FileInputStream in2 = new FileInputStream("Theta-Integers.bin");
+            byte[] bytes2 = new byte[in2.available()];
+            in2.read(bytes2);
+            in2.close();
+            Sketch sketch2 = Sketches.wrapSketch(Memory.wrap(bytes2));
+            
+            
+            FileInputStream in3 = new FileInputStream("Theta-IPs.bin");
+            byte[] bytes3 = new byte[in3.available()];
+            in3.read(bytes3);
+            in3.close();
+            Sketch sketch3 = Sketches.wrapSketch(Memory.wrap(bytes3));
+            
+            
+            org.apache.datasketches.theta.Union theta_union = SetOperation.builder().buildUnion();
+            // union.update(sketch1.toByteArray());  // org.apache.datasketches.theta
+            // theta_union.update(sketch1);
+            theta_union.union(sketch1);
+            theta_union.union(sketch2);
+            theta_union.union(sketch3);
+
+            /* theta_union.update(sketch2.toByteArray());
+            theta_union.update(sketch3.toByteArray()); */
+            Sketch unionResult = theta_union.getResult();
+
+            // debug summary of the union result sketch
+            // System.out.println(unionResult.toString());
+
+            System.out.println("oooooooo> Theta - Union unique count estimate: " + unionResult.getEstimate());
+            //System.out.println("Union unique count lower bound 95% confidence: " + unionResult.getLowerBound(2));
+            //System.out.println("Union unique count upper bound 95% confidence: " + unionResult.getUpperBound(2));
+
+            Intersection intersection = SetOperation.builder().buildIntersection();
+            intersection.intersect(sketch1);
+            // intersection.update(sketch1);  // deprecated 
+            intersection.intersect(sketch2);
+            intersection.intersect(sketch3); 
+            Sketch intersectionResult = intersection.getResult();
+            System.out.print("oooooooo> Theta 1 - Intersection unique count estimate: " + sketch1.getEstimate());
+            System.out.print("\noooooooo> Theta 2 - Intersection unique count estimate: " + sketch2.getEstimate());
+            System.out.print("\noooooooo> Theta 3 - Intersection unique count estimate: " + sketch3.getEstimate());
+            //System.out.println("\noooooooo> Theta - Intersection unique count estimate: " + intersectionResult.getEstimate());
+            //System.out.println("Intersection unique count lower bound 95% confidence: " + intersectionResult.getLowerBound(2));
+            //System.out.println("Intersection unique count upper bound 95% confidence: " + intersectionResult.getUpperBound(2));
+        } 
+            System.out.println("------------------------------------------------------------------------------------------------");
+            System.out.println("\nFile Sizes");
+            System.out.println(getFileSize("cpc-Integers.bin"));
+            System.out.println(getFileSize("cpc-IPs.bin"));
+            System.out.println(getFileSize("cpc-Strings.bin"));
+            System.out.println(getFileSize("Hll-Strings.bin"));
+            System.out.println(getFileSize("Hll-Integers.bin"));
+            System.out.println(getFileSize("Hll-IPs.bin"));
+            System.out.println(getFileSize("Theta-Integers.bin"));
+            System.out.println(getFileSize("Theta-IPs.bin"));
+            System.out.println(getFileSize("Theta-Strings.bin"));
+            System.out.println("------------------------------------------------------------------------------------------------");
+            long endTime = System.nanoTime();
+            long totalTime = (endTime - startTime);   
+            System.out.println("Total time from start: " + (totalTime / 10000000) *.01 + " seconds.");
+            // pb.stop();
+        }
+    }

@@ -1,0 +1,104 @@
+----------------- Sketch default ---------------------------------
+### CPD SKETCH - PREAMBLE:
+  Flavor         : SLIDING
+  LgK            : 10
+  Merge Flag     : true
+  Error Const    : 0.6931471805599453
+  RSE            : 0.02166084939249829
+  Seed Hash      : 93cc | 37836
+  Num Coupons    : 11119
+  Num Pairs (SV) : 29
+  First Inter Col: 7
+  Valid Window   : true
+  Valid PairTable: true
+  Window Offset  : 8
+  KxP            : 1024.0
+  HIP Accum      : 0.0
+### END CPC SKETCH
+Distinct count estimate: 1509513.5330273544
+Distinct count lower bound 95% confidence: 1445219.337739661
+Distinct count upper bound 95% confidence: 1576022.0
+
+-------------- 1000 values ---------------------
+### CPD SKETCH - PREAMBLE:
+  Flavor         : PINNED
+  LgK            : 10
+  Merge Flag     : true
+  Error Const    : 0.6931471805599453
+  RSE            : 0.02166084939249829
+  Seed Hash      : 93cc | 37836
+  Num Coupons    : 1981
+  Num Pairs (SV) : 8
+  First Inter Col: 0
+  Valid Window   : true
+  Valid PairTable: true
+  Window Offset  : 0
+  KxP            : 1024.0
+  HIP Accum      : 0.0
+### END CPC SKETCH
+Distinct count estimate: 2987.3894163641207
+Distinct count lower bound 95% confidence: 2860.1485574160733
+Distinct count upper bound 95% confidence: 3120.0
+
+-------------------1,000,000 values --------------------------
+### CPD SKETCH - PREAMBLE:
+  Flavor         : SLIDING
+  LgK            : 10
+  Merge Flag     : true
+  Error Const    : 0.6931471805599453
+  RSE            : 0.02166084939249829
+  Seed Hash      : 93cc | 37836
+  Num Coupons    : 12166
+  Num Pairs (SV) : 32
+  First Inter Col: 8
+  Valid Window   : true
+  Valid PairTable: true
+  Window Offset  : 9
+  KxP            : 1024.0
+  HIP Accum      : 0.0
+### END CPC SKETCH
+Distinct count estimate: 3066397.2903448157
+Distinct count lower bound 95% confidence: 2935791.275955735
+Distinct count upper bound 95% confidence: 3201501.0
+
+-------------------- 10,000,000 keys + values ---------------------------------
+### CPD SKETCH - PREAMBLE:
+  Flavor         : SLIDING
+  LgK            : 10
+  Merge Flag     : true
+  Error Const    : 0.6931471805599453
+  RSE            : 0.02166084939249829
+  Seed Hash      : 93cc | 37836
+  Num Coupons    : 15559
+  Num Pairs (SV) : 31
+  First Inter Col: 12
+  Valid Window   : true
+  Valid PairTable: true
+  Window Offset  : 12
+  KxP            : 1024.0
+  HIP Accum      : 0.0
+### END CPC SKETCH
+Distinct count estimate: 3.0484863708342258E7
+Distinct count lower bound 95% confidence: 2.918643230133655E7
+Distinct count upper bound 95% confidence: 3.1828006E7
+
+---------------10,000,000 values of integers only -----------------------
+### CPD SKETCH - PREAMBLE:
+  Flavor         : SLIDING
+  LgK            : 10
+  Merge Flag     : true
+  Error Const    : 0.6931471805599453
+  RSE            : 0.02166084939249829
+  Seed Hash      : 93cc | 37836
+  Num Coupons    : 10433
+  Num Pairs (SV) : 25
+  First Inter Col: 6
+  Valid Window   : true
+  Valid PairTable: true
+  Window Offset  : 7
+  KxP            : 1024.0
+  HIP Accum      : 0.0
+### END CPC SKETCH
+Distinct count estimate: 948790.7276600666
+Distinct count lower bound 95% confidence: 908379.2076593224
+Distinct count upper bound 95% confidence: 990594.0
